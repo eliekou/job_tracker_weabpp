@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:7.0
+    container_name: mongodbnew
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+  fastapi:
+    build: ./backend
+    container_name: fastapi
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mongodb
+    environment:
+      MONGODB_URL: mongodb://admin:password@mongodb:27017/
+      MONGODB_USR: admin
+      MONGODB_PWD: password
+      REACT_APP_URL: http://localhost:3000
+
+  frontend:
+    # build: ./frontend
+    image: job_tracker_webapp-front:latest
+    container_name: frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - fastapi
+
+volumes:
+  mongo-data:
